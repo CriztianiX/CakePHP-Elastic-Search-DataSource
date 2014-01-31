@@ -102,6 +102,20 @@ class ElasticSource extends DataSource {
 	protected $_listSources = true;
 
 /**
+ *  Save the model alias for later use
+ *  
+ * @var string
+ */
+	protected $_modelAlias;
+
+/**
+ *  Save the mode on bulk operation
+ *  
+ * @var string
+ */
+	protected $_bulkMode = null;
+
+/**
  * Elasticsearch column definition
  *
  * @var array
@@ -209,7 +223,7 @@ class ElasticSource extends DataSource {
  * @author David Kullmann
  */
 	public function create(Model $Model, $fields = array(), $values = array()) {
-
+		$this->_modelAlias = $Model->alias;
 		$parentIndex = array_search('_parent', $fields);
 		if ($parentIndex !== false) {
 			$this->_parent = $values[$parentIndex];
@@ -263,6 +277,7 @@ class ElasticSource extends DataSource {
 	}
 
 	public function update(Model $Model, $fields = array(), $values = array(), $conditions = NULL) {
+		$this->_bulkMode = 'update';
 		return $this->create($Model, $fields, $values);
 	}
 
@@ -462,14 +477,30 @@ class ElasticSource extends DataSource {
 
 		foreach ($documents as $document) {
 			$_id = isset($document['_id']) ? $document['_id'] : null;
+
+			/* Force to load id from model */
+			if(!$_id && isset($this->_modelAlias)){
+				$_id = (isset($document[$this->_modelAlias]['id']) ? $document[$this->_modelAlias]['id'] : null);
+			}
+
 			$_parent = isset($document['_parent']) ? $document['_parent'] : null;
 			unset($document['_id'], $document['_parent']);
-			$command = array('index' => array('_index' => $this->config['index'], '_type' => $type) + compact('_id', '_parent'));
+
+			/* Create the documents, instead update them */
+			if(!$this->_bulkMode) {
+				$command = array('index' => array('_index' => $this->config['index'], '_type' => $type) + compact('_id', '_parent'));
+				$doc = $document;
+			}elseif($this->_bulkMode == 'update') {
+				$command = array('update' => array('_index' => $this->config['index'], '_type' => $type) + compact('_id', '_parent'));
+				$doc = array('doc' => $document);				
+			}
+
 			$json[] = json_encode($command);
-			$json[] = json_encode($document);
+			$json[] = json_encode($doc);
 		}
 
 		$json = implode("\n", $json) . "\n";
+
 		return $this->post($type, '_bulk', $json, false);
 	}
 
