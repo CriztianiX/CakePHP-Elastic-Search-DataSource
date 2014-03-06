@@ -1008,7 +1008,12 @@ class ElasticSource extends DataSource {
 			$filters = array('and' => $filters);
 		} elseif (!empty($filters[0])) {
 			$filters = $filters[0];
+
 			if (!empty($filters['term']['id']) && count($filters['term']['id']) === 1) {
+				/* When we using uuiq() */
+				if(is_string($filters['term']['id']))
+					return $filters['term']['id'];
+
 				return $filters['term']['id'][0];
 			}
 		}
