@@ -1548,7 +1548,7 @@ class ElasticSource extends DataSource {
 			}
 			return $results['hits']['hits'];
 		}
-		if (!empty($results['_id'])) {
+		if (!empty($results['_id']) && $results['exists'] === true) {
 			$model = $results['_source'];
 			if (empty($model[$this->currentModel->alias][$this->currentModel->primaryKey])) {
 				$model[$this->currentModel->alias][$this->currentModel->primaryKey] = $results['_id'];

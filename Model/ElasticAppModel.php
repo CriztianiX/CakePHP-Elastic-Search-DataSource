@@ -94,8 +94,9 @@ class ElasticAppModel extends AppModel {
 	{
 		$id = ($id ? $id : $this->id);
 		$conditions = array('id' => $id);
-
-		return ($this->find('count', array('conditions' => $conditions )) == 1 ? true : false );
+		$results = $this->find('first', array('conditions' => $conditions ));
+		
+		return (!empty($results));
 	}
 	/**
 	* Counter cache should not happen when you are in ElasticSearch mode
