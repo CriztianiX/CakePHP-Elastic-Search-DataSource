@@ -159,6 +159,18 @@ class ElasticSource extends DataSource {
 		$this->startQuote = $this->endQuote = null;
 	}
 
+	public function nativeQuery(Model $Model, $query)
+	{
+		$this->currentModel($Model); 
+		$type = $this->getType($Model);
+		$api = '_search';
+		$method = 'get';
+		$results = $this->execute($method, $type, $api, array('body' => json_encode($query)));
+
+		return $this->filterResults($results);
+	}
+
+
 /**
  * Describe a model based on it's mapping
  *

@@ -59,6 +59,11 @@ class ElasticAppModel extends AppModel {
 		return parent::schema($field);
 	}
 
+	public function query($sql) {
+		$db = $this->getDataSource();
+		return call_user_func_array(array(&$db, 'nativeQuery'), array($this, $sql));
+	}
+
 	public function hasField($name, $checkVirtual = false) 
 	{
 		if(in_array($name, array_keys($this->_mapping))) {
