@@ -93,6 +93,10 @@ class ElasticAppModel extends AppModel {
 	public function exists($id = null)
 	{
 		$id = ($id ? $id : $this->id);
+
+		if(!$id)
+			return false;
+		
 		$conditions = array('id' => $id);
 		$results = $this->find('first', array('conditions' => $conditions ));
 		
