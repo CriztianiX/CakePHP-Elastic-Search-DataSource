@@ -1573,7 +1573,13 @@ class ElasticSource extends DataSource {
 			}
 			return $results['hits']['hits'];
 		}
-		if (!empty($results['_id']) && $results['created'] === true) {
+
+		/* When a document is deleted */
+		if (!empty($results['_id']) && isset($results['found']) && $results['found'] === true) {
+			return true;
+		}
+
+		if (!empty($results['_id']) && isset($results['created']) && $results['created'] === true) {
 			/*
 			$model = $results['_source'];
 			if (empty($model[$this->currentModel->alias][$this->currentModel->primaryKey])) {
