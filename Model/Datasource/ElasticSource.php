@@ -279,6 +279,8 @@ class ElasticSource extends DataSource {
 		} else {
 			$api = $Model->findQueryType === 'count' ? '_count' : '_search';
 		}
+
+
 		$results = $this->get($this->getType($Model), $api, $query);
 
 
@@ -760,9 +762,14 @@ class ElasticSource extends DataSource {
 
 		$query = compact('query', 'size', 'sort', 'from', 'fields', 'facets');
 
-		if ($Model->findQueryType === 'count') {
+	/**
+	 * Change on count API 
+	 * @see http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_search_requests.html 
+	 *
+	 */
+		/*if ($Model->findQueryType === 'count') {
 			return $query['query'];
-		}
+		}*/
 
 		return $query;
 	}
@@ -1545,6 +1552,7 @@ class ElasticSource extends DataSource {
 				$this->currentModel->_facets[$facet] = $data;
 			}
 		}
+
 		if (!empty($results['hits'])) {
 			foreach($results['hits']['hits'] as &$result) {
 				$tmp = isset($result['_source']) ? $result['_source'] : array();
@@ -1565,12 +1573,13 @@ class ElasticSource extends DataSource {
 			}
 			return $results['hits']['hits'];
 		}
-		if (!empty($results['_id']) && $results['exists'] === true) {
+		if (!empty($results['_id']) && $results['created'] === true) {
+			/*
 			$model = $results['_source'];
 			if (empty($model[$this->currentModel->alias][$this->currentModel->primaryKey])) {
 				$model[$this->currentModel->alias][$this->currentModel->primaryKey] = $results['_id'];
-			}
-			return array($model);
+			}*/
+			return true;
 		}
 		return $results;
 	}
