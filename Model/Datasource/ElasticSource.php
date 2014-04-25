@@ -706,6 +706,10 @@ class ElasticSource extends DataSource {
 				'key' => 'fields',
 				'onEmpty' => 'skip'
 			),
+			'filter' => array(
+				'key' => 'filter',
+				'onEmpty' => 'skip'
+			),
 			'facets' => array(
 				'key' => 'facets',
 				'onEmpty' => 'skip'

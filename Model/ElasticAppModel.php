@@ -8,13 +8,11 @@ class ElasticAppModel extends AppModel {
 	* @var string
 	**/
 	public $useIndexConfig = 'index';
-	
-
-	/**
-	*
-	*/
-
-
+/**
+ * Support for native query 
+ * 
+ */	
+	public $findMethods = array('native' =>  true);
 	public $insertID;
 
 	/**
@@ -57,6 +55,15 @@ class ElasticAppModel extends AppModel {
 		}
 
 		return parent::schema($field);
+	}
+
+	public function _findNative($state, $query, $results = array())
+	{
+		 if ($state === 'before') {
+      		 return $query;
+        }
+
+        return $results;
 	}
 
 	public function query($sql) {
